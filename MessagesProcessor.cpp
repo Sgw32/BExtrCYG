@@ -2,7 +2,7 @@
 
 MessagesProcessor::MessagesProcessor()
 {
-	
+	dayScan=false;
 }
 
 MessagesProcessor::~MessagesProcessor()
@@ -155,13 +155,26 @@ void MessagesProcessor::processMessages(std::string inputFolder)
 
 void MessagesProcessor::findMSGFiles()
 {
+	time_t t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+
+	char date[8];
+	sprintf(date,"%04d%02d%02d",now->tm_year+1900,now->tm_mon,now->tm_mday);
+	string grep(date);
+	cout << "Scan is for " << grep <<endl;
+
 	for (vector<string>::iterator it = files.begin(); it != files.end(); it++)
 	{
 		string filename = *it;
-		if (filename.substr(filename.find_last_of(".") + 1)=="msg")
+		string date2 = filename.substr(0,8);
+		cout << "File is " << date2 <<endl;
+		if ((date2==grep)||(!dayScan))
 		{
-			cout << mFolder+filename << endl;
-			messages.push_back(mFolder+filename);
+			if (filename.substr(filename.find_last_of(".") + 1)=="msg")
+			{
+				cout << mFolder+filename << endl;
+				messages.push_back(mFolder+filename);
+			}
 		}
 	}
 }

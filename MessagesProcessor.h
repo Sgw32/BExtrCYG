@@ -12,8 +12,13 @@ public:
 	~MessagesProcessor();
 	void processMessages(string folder);
 	void printIndexes();
+	void setDayScan(bool enable)
+	{
+		dayScan=enable;
+	}
 	void saveIUKIUSMessages(string outfolder);
 private:
+	bool dayScan;
 	string ReadAllBytes(string filename);
 	bool checkIUKIUS(string idx,string msg);
 	vector<char> CharReadAllBytes(string filename);

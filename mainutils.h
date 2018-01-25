@@ -4,12 +4,13 @@
 #define MAINUTILS_H
 
 string inputFolder,outputFolder;
+bool dayFiles = false;
 
 bool printUsageStrings(int argc, char* argv[])
 {
 	if (argc <= 1)
 	{
-		std::cout << "usage: " << argv[0] << " /O=out_folder /I=in_folder" << std::endl;
+		std::cout << "usage: " << argv[0] << " /O=out_folder /I=in_folder /D" << std::endl;
 		return 0;
 	}
 	return 1;
@@ -19,13 +20,17 @@ void recognizeToken(string arg)
 {
 	if (arg.find('O') != string::npos)
 	{
-		outputFolder = arg.substr(arg.find('O') + 3, arg.length() - 3);
+		outputFolder = arg.substr(arg.find('O') + 2, arg.length() - 2);
 		cout<<"OutputFolder:"<<outputFolder<<endl;
 	}
 	if (arg.find('I') != string::npos)
 	{
-		inputFolder = arg.substr(arg.find('I') + 3, arg.length() - 3);
+		inputFolder = arg.substr(arg.find('I') + 2, arg.length() - 2);
 		cout<<"InputFolder:"<<inputFolder<<endl;
+	}
+	if (arg.find('D') != string::npos)
+	{
+		dayFiles = true;
 	}
 }
 
