@@ -253,7 +253,12 @@ void MessagesProcessor::saveIUKIUSMessages(string outfolder)
         {
 			string fn = splitpath(msg_cfnm[i],delims).back();
 			string extt = fn.substr(0,fn.find_last_of("."));
-            string fileName = outfolder + "/" + extt + "_" + msg_index[i] + ".bin";
+			string year = fn.substr(0,4);
+			//string date = fn.substr(5,4);
+			string foldername = outfolder + "/" + year + "/"+ msg_index[i];
+			string l_cmd = "mkdir -p " + foldername;
+			system(l_cmd.c_str());
+            string fileName = foldername + "/" + extt + "_" + msg_index[i] + ".bin";
             ofstream write;
 			write.open(fileName.c_str(), ios::out | ios::binary);
 			for (size_t j = 0; j != msg_data[i].length(); j++)
