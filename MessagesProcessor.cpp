@@ -70,8 +70,10 @@ void MessagesProcessor::processMessages(std::string inputFolder)
 	findMSGFiles();
 	printf("Point5\n");
 	string cfnm = "";
+	system("pause");
 	for (auto filename=messages.begin();filename!=messages.end();filename++)
     {
+		system("pause");
 		printf("Point6_start\n");
         curFileName = *filename;
 		cfnm = curFileName;
@@ -183,9 +185,11 @@ void MessagesProcessor::findMSGFiles()
 			{
 				cout << mFolder+filename << endl;
 				messages.push_back(mFolder+filename);
+
 			}
 		}
 	}
+	cout << "SCAN OK!" << endl;
 }
 
 bool MessagesProcessor::checkIUKIUS(string index,string message)
