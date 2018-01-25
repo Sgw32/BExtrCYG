@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+//#define VERBOSE
+
 #ifndef MESSAGESPROCESSOR
 #define MESSAGESPROCESSOR
 

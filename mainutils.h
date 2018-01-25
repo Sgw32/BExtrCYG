@@ -43,6 +43,6 @@ void processInputParameters(int argc, char* argv[])
 	outputFolder="";
 	for (i = 1; i != argc; i++)
 		recognizeToken(string(argv[i]));
-	printf("Point1\n");
+	//printf("Point1\n");
 }
 #endif
