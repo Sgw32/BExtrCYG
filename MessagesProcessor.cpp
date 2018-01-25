@@ -3,7 +3,7 @@
 void v_printf(char* data)
 {
 #ifdef VERBOSE
-	printf(data);
+	//printf(data);
 #endif
 }
 
@@ -36,10 +36,10 @@ vector<char> MessagesProcessor::CharReadAllBytes(string filename)
 
 string MessagesProcessor::ReadAllBytes(std::string path)
 {
-	printf("Point6_RAB%s\n",path.c_str());
+	//printf("Point6_RAB%s\n",path.c_str());
 	std::ifstream file(path.c_str());
 	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	printf("Point6_F%s\n",content.c_str());
+	//printf("Point6_F%s\n",content.c_str());
 	return content;
 }
 
@@ -53,32 +53,35 @@ void MessagesProcessor::printIndexes()
 
 void MessagesProcessor::addMessage(string msg,string index,string cfnm)
 {
-	printf("MSG_%s\n",cfnm.c_str());
+	//printf("MSG_%s\n",cfnm.c_str());
 	msg_data.push_back(msg);
 	msg_index.push_back(index);
 	msg_cfnm.push_back(cfnm);
-	printf("Ok.\n");
+	//printf("Ok.\n");
 }
 
 void MessagesProcessor::processMessages(std::string inputFolder)
 {
-	printf("Point2\n");
+	//printf("Point2\n");
 	mFolder = inputFolder;
 	cout << "inputFolder "<<mFolder;
 	getdir(inputFolder);
-	printf("Point3\n");
+	//printf("Point3\n");
 	findMSGFiles();
-	printf("Point5\n");
+	//printf("Point5\n");
 	string cfnm = "";
-	system("pause");
+	//system("read -rsp $'Press enter to continue...\n'");
 	for (auto filename=messages.begin();filename!=messages.end();filename++)
     {
-		system("pause");
-		printf("Point6_start\n");
+		//system("read -rsp $'Press enter to continue...\n'");
+		//printf("Point6_start\n");
+		//system("read -rsp $'Press enter to continue...\n'");
         curFileName = *filename;
 		cfnm = curFileName;
+		//system("read -rsp $'Press enter to continue...\n'");
         vector<char> fileBytes = CharReadAllBytes(curFileName);
-		printf("Point6_OK\n");
+		//system("read -rsp $'Press enter to continue...\n'");
+		//printf("Point6_OK\n");
         byte state = 0;
         int msgByteCount = -1;
         int idxCount = 0;
@@ -90,11 +93,12 @@ void MessagesProcessor::processMessages(std::string inputFolder)
         string message = "";
         string messageBuilder;
         string idxBuilder;
-		printf("Point6_OK2\n");
+		//printf("Point6_OK2\n");
+		//system("read -rsp $'Press enter to continue...\n'");
         for (size_t i = 0; i < fileBytes.size(); i++)
         {
             byte b = fileBytes[i];
-			printf("Point6_ITER\n");
+			//printf("Point6_ITER\n");
             switch (state)
             {
                 case 0:
@@ -105,7 +109,7 @@ void MessagesProcessor::processMessages(std::string inputFolder)
                     }
                     else
                     {
-						printf("Point6_FILESIZE\n");
+						//printf("Point6_FILESIZE\n");
                         // Найдём SOH, здесь пойдёт уже BUFR
                         string dta = idxBuilder;
                         filesize = atoi(dta.c_str());
@@ -201,11 +205,11 @@ bool MessagesProcessor::checkIUKIUS(string index,string message)
         header = message.substr(index_pos + 2 + 5 + 1, 3);
         if ((header == "IUK") || (header == "IUS"))
 		{
-			printf("Header OK...\n");
+			//printf("Header OK...\n");
             return true;
 		}
     }
-	printf("Header%s Index%s...\n",header.c_str(),index.c_str());
+	//printf("Header%s Index%s...\n",header.c_str(),index.c_str());
     return false;
 }
 
@@ -240,11 +244,11 @@ std::vector<std::string> splitpath(
 
 void MessagesProcessor::saveIUKIUSMessages(string outfolder)
 {
-	printf("Saving messages...\n");
+	//printf("Saving messages...\n");
 	std::set<char> delims{'\\','/'};
 	for (size_t i = 0; i != msg_data.size(); i++)
     {
-		printf("Checking index number %s\n",msg_index[i].c_str());
+		//printf("Checking index number %s\n",msg_index[i].c_str());
         if (checkIUKIUS(msg_index[i],msg_data[i]))
         {
 			string fn = splitpath(msg_cfnm[i],delims).back();
@@ -259,9 +263,9 @@ void MessagesProcessor::saveIUKIUSMessages(string outfolder)
 			write.close();
 			printf("filename:%s\n",fileName.c_str());
 		}
-		printf("Check ok.\n");
+		//printf("Check ok.\n");
     }
-	printf("Save ok.\n");
+	//printf("Save ok.\n");
 }
 
 int MessagesProcessor::getdir(string dir)
