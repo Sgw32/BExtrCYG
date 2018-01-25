@@ -175,9 +175,10 @@ void MessagesProcessor::findMSGFiles()
 	{
 		string filename = *it;
 		string date2 = filename.substr(0,8);
-		cout << "File is " << date2 <<endl;
+		
 		if ((date2==grep)||(!dayScan))
 		{
+			cout << "File is " << date2 <<endl;
 			if (filename.substr(filename.find_last_of(".") + 1)=="msg")
 			{
 				cout << mFolder+filename << endl;
