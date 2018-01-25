@@ -1,6 +1,6 @@
 #pragma once
 #include <stdio.h>
-#include <tchar.h>
+//#include <tchar.h>
 #include <sstream> 
 #include <fstream>
 #include <map>
