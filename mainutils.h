@@ -5,6 +5,7 @@
 
 string inputFolder,outputFolder;
 bool dayFiles = false;
+bool cbufrProcess = false;
 
 bool printUsageStrings(int argc, char* argv[])
 {
@@ -31,6 +32,11 @@ void recognizeToken(string arg)
 	if (arg.find('D') != string::npos)
 	{
 		dayFiles = true;
+	}
+
+	if (arg.find('C') != string::npos)
+	{
+		cbufrProcess = true;
 	}
 }
 

@@ -14,15 +14,22 @@ public:
 	~MessagesProcessor();
 	void processMessages(string folder);
 	void printIndexes();
+	bool processPRNFile(string year,string outfolder,int msgtype);
 	void setDayScan(bool enable)
 	{
 		dayScan=enable;
 	}
+	void setCBUFRProcess(bool cb)
+	{
+		cbufrProcess = cb;
+	}
 	void saveIUKIUSMessages(string outfolder);
 private:
 	bool dayScan;
+	bool cbufrProcess;
 	string ReadAllBytes(string filename);
 	bool checkIUKIUS(string idx,string msg);
+	int getIUKIUS(string idx,string msg);
 	vector<char> CharReadAllBytes(string filename);
 	vector<string> files;
 	vector<string> messages;

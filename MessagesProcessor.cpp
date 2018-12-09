@@ -1,12 +1,33 @@
 #include "MessagesProcessor.h"
 
+string type_prefix[2] = {"IUK","IUS"};
+
 void v_printf(char* data)
 {
 #ifdef VERBOSE
 	//printf(data);
 #endif
 }
+/*
+static inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
+}
 
+// trim from end (in place)
+static inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
+// trim from both ends (in place)
+static inline void trim(std::string &s) {
+    ltrim(s);
+    rtrim(s);
+}
+*/
 
 MessagesProcessor::MessagesProcessor()
 {
@@ -129,6 +150,7 @@ void MessagesProcessor::processMessages(std::string inputFolder)
                         message = messageBuilder;
                         idxBuilder = "";
                         messageBuilder = "";
+						//Внезапно оказалось, что idx - не индекс, а непонятно что.
                         addMessage(message, idx,curFileName);
                         state = 0;
                         idx = "";
@@ -196,6 +218,61 @@ void MessagesProcessor::findMSGFiles()
 	cout << "SCAN OK!" << endl;
 }
 
+bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
+{
+	bool result=false;
+	getdir(outfolder);
+	for (vector<string>::iterator it = files.begin(); it != files.end(); it++)
+	{
+		string filename = *it;
+		if (filename.substr(filename.find_last_of(".") + 1)!="bin")
+		{
+			if (filename.substr(filename.find_last_of(".") + 1)=="PRN")
+			{
+				//Получен	
+				string idx = filename.substr(0,5);
+				//trim(idx);
+				string foldername = outfolder + "/" + year + "/"+ idx;
+				string l_cmd = "echo '" + foldername+"'";
+				system(l_cmd.c_str());
+				l_cmd = "mkdir -p '" + foldername + "'/";
+				system(l_cmd.c_str()); //Make index folder
+				l_cmd = "cp '" + outfolder + "/temp.bin' '" + outfolder + "/" + year + "/"+ idx + "/'";
+				l_cmd += filename.substr(0,filename.find_last_of("."));
+				l_cmd += ".bin";
+				//system("read -rsp $'Moving BUFR...\n'");
+				system(l_cmd.c_str()); //Move BUFR file
+				l_cmd = "mv '" + outfolder + "/" + filename+ "' '" + outfolder + "/" + year + "/"+ idx + "/" + filename + "." + type_prefix[msgtype-1] + "'";
+				system(l_cmd.c_str()); //Move CBUFR result
+				result=true;
+			}
+		}
+	}
+	return result;
+}
+
+int MessagesProcessor::getIUKIUS(string index,string message)
+{
+	size_t index_pos = message.find(index);
+	string header;
+    if (message.length() > index_pos + 2 + 5 + 1+3)
+    {
+        header = message.substr(index_pos + 2 + 5 + 1, 3);
+        if ((header == "IUK"))
+		{
+			//printf("Header OK...\n");
+            return 1;
+		}
+		if ((header == "IUS"))
+		{
+			//printf("Header OK...\n");
+            return 2;
+		}
+    }
+	//printf("Header%s Index%s...\n",header.c_str(),index.c_str());
+    return 0;
+}
+
 bool MessagesProcessor::checkIUKIUS(string index,string message)
 {
 	size_t index_pos = message.find(index);
@@ -249,24 +326,61 @@ void MessagesProcessor::saveIUKIUSMessages(string outfolder)
 	for (size_t i = 0; i != msg_data.size(); i++)
     {
 		//printf("Checking index number %s\n",msg_index[i].c_str());
-        if (checkIUKIUS(msg_index[i],msg_data[i]))
+	int msgtype = getIUKIUS(msg_index[i],msg_data[i]); //0 1 2
+        if (msgtype)//checkIUKIUS(msg_index[i],msg_data[i]))
         {
 			string fn = splitpath(msg_cfnm[i],delims).back();
 			string extt = fn.substr(0,fn.find_last_of("."));
-			string year = fn.substr(0,4);
+			string year = fn.substr(0,4); //Из имени бюллетеня берётся год.
 			//string date = fn.substr(5,4);
-			string foldername = outfolder + "/" + year + "/"+ msg_index[i];
-			string l_cmd = "mkdir -p " + foldername;
-			system(l_cmd.c_str());
-            string fileName = foldername + "/" + extt + "_" + msg_index[i] + ".bin";
-            ofstream write;
-			write.open(fileName.c_str(), ios::out | ios::binary);
-			for (size_t j = 0; j != msg_data[i].length(); j++)
+			if (!cbufrProcess)
 			{
-				write.put(msg_data[i][j]);
+				string foldername = outfolder + "/" + year + "/"+ msg_index[i];
+				string l_cmd = "mkdir -p " + foldername;
+				system(l_cmd.c_str());
+				string fileName = foldername + "/" + extt + 
+				"_" + msg_index[i] + "_" + type_prefix[msgtype-1] + "_.bin";
+				ofstream write;
+				write.open(fileName.c_str(), ios::out | ios::binary);
+				for (size_t j = 0; j != msg_data[i].length(); j++)
+				{
+					write.put(msg_data[i][j]);
+				}
+				write.close();
+				printf("filename:%s\n",fileName.c_str());
 			}
-			write.close();
-			printf("filename:%s\n",fileName.c_str());
+			else
+			{
+				string foldername = outfolder + "/" + year;
+				string l_cmd = "mkdir -p " + foldername;
+				system(l_cmd.c_str());
+				string fileName = outfolder + "/temp.bin"; //Temp file for cbufr
+				ofstream write;
+				write.open(fileName.c_str(), ios::out | ios::binary);
+				for (size_t j = 0; j != msg_data[i].length(); j++)
+				{
+					write.put(msg_data[i][j]);
+				}
+				write.close();
+				//system("read -rsp $'Wrote temp...\n'");
+				l_cmd = "wine " + outfolder + "/cbufr.exe export " + outfolder + "/temp.bin " + outfolder;
+				system(l_cmd.c_str());
+				//system("read -rsp $'Processed cbufr...\n'");
+				//получим файл *.prn
+				bool noresave = processPRNFile(year,outfolder,msgtype); //Если не найден то пересохраним
+
+				if (!noresave)
+				{
+					fileName = outfolder + "/" + extt + "_" + msg_index[i] + "_" + type_prefix[msgtype-1] + "_.bin";
+					write.open(fileName.c_str(), ios::out | ios::binary);
+					for (size_t j = 0; j != msg_data[i].length(); j++)
+					{
+						write.put(msg_data[i][j]);
+					}
+					write.close();
+					printf("CDENY:%s\n",fileName.c_str());
+				}
+			}
 		}
 		//printf("Check ok.\n");
     }

@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
 	processInputParameters(argc,argv);
 	MessagesProcessor m;
 	m.setDayScan(dayFiles);
+	m.setCBUFRProcess(cbufrProcess);
 	m.processMessages(inputFolder);
 	m.printIndexes();
 	m.saveIUKIUSMessages(outputFolder);
