@@ -231,18 +231,20 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 			{
 				//Получен	
 				string idx = filename.substr(0,5);
+				string month = filename.substr(10,2);
+				string day = filename.substr(12,2);
 				//trim(idx);
-				string foldername = outfolder + "/" + year + "/"+ idx;
+				string foldername = outfolder + "/" + year + "/"+ idx + "/" + month+ "/" + day;
 				string l_cmd = "echo '" + foldername+"'";
 				system(l_cmd.c_str());
 				l_cmd = "mkdir -p '" + foldername + "'/";
-				system(l_cmd.c_str()); //Make index folder
-				l_cmd = "cp '" + outfolder + "/temp.bin' '" + outfolder + "/" + year + "/"+ idx + "/'";
+				system(l_cmd.c_str()); //Make index and month folder
+				l_cmd = "cp '" + outfolder + "/temp.bin' '" + outfolder + "/" + year + "/"+ idx + "/"+ month + "/" + day + "/'";
 				l_cmd += filename.substr(0,filename.find_last_of("."));
 				l_cmd += ".bin";
 				//system("read -rsp $'Moving BUFR...\n'");
 				system(l_cmd.c_str()); //Move BUFR file
-				l_cmd = "mv '" + outfolder + "/" + filename+ "' '" + outfolder + "/" + year + "/"+ idx + "/" + filename + "." + type_prefix[msgtype-1] + "'";
+				l_cmd = "mv '" + outfolder + "/" + filename+ "' '" + outfolder + "/" + year + "/" + idx + "/" + month + "/" + day + "/" + filename + "." + type_prefix[msgtype-1] + "'";
 				system(l_cmd.c_str()); //Move CBUFR result
 				result=true;
 			}
