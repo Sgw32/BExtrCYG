@@ -10,6 +10,7 @@ all: $(SOURCES) $(EXECUTABLE)
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 	cp ./bextr ../../BufrExtract
+	cp ./bextr ../../../BufrExtract
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@
 

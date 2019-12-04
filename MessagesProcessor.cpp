@@ -1,6 +1,9 @@
 #include "MessagesProcessor.h"
+#define KN04_PREFIXES 4
 
 string type_prefix[2] = {"IUK","IUS"};
+
+string kn04_prefix[4] = {"TTAA","TTBB","TTCC","TTDD"};
 
 void v_printf(char* data)
 {
@@ -94,11 +97,15 @@ void MessagesProcessor::processMessages(std::string inputFolder)
 	//system("read -rsp $'Press enter to continue...\n'");
 	for (auto filename=messages.begin();filename!=messages.end();filename++)
     {
+		//system("read -rsp $'Filename...\n'");
+		//string l_cmd = "echo '" + *filename +"'";
+		//system(l_cmd.c_str());
 		//system("read -rsp $'Press enter to continue...\n'");
 		//printf("Point6_start\n");
 		//system("read -rsp $'Press enter to continue...\n'");
         curFileName = *filename;
 		cfnm = curFileName;
+		
 		//system("read -rsp $'Press enter to continue...\n'");
         vector<char> fileBytes = CharReadAllBytes(curFileName);
 		//system("read -rsp $'Press enter to continue...\n'");
@@ -187,6 +194,7 @@ void MessagesProcessor::processMessages(std::string inputFolder)
             addMessage(message, idx,cfnm);
         }
     }
+	//system("read -rsp $'Finished...\n'");
 }
 
 void MessagesProcessor::findMSGFiles()
@@ -206,10 +214,10 @@ void MessagesProcessor::findMSGFiles()
 		
 		if ((date2==grep)||(!dayScan))
 		{
-			cout << "File is " << date2 <<endl;
+			//cout << "File is " << date2 <<endl;
 			if (filename.substr(filename.find_last_of(".") + 1)=="msg")
 			{
-				cout << mFolder+filename << endl;
+				//cout << mFolder+filename << endl;
 				messages.push_back(mFolder+filename);
 
 			}
@@ -231,18 +239,20 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 			{
 				//Получен	
 				string idx = filename.substr(0,5);
+				string month = filename.substr(10,2);
+				string day = filename.substr(12,2);
 				//trim(idx);
-				string foldername = outfolder + "/" + year + "/"+ idx;
+				string foldername = outfolder + "/" + year + "/"+ idx + "/" + month+ "/" + day;
 				string l_cmd = "echo '" + foldername+"'";
 				system(l_cmd.c_str());
 				l_cmd = "mkdir -p '" + foldername + "'/";
-				system(l_cmd.c_str()); //Make index folder
-				l_cmd = "cp '" + outfolder + "/temp.bin' '" + outfolder + "/" + year + "/"+ idx + "/'";
+				system(l_cmd.c_str()); //Make index and month folder
+				l_cmd = "cp '" + outfolder + "/temp.bin' '" + outfolder + "/" + year + "/"+ idx + "/"+ month + "/" + day + "/'";
 				l_cmd += filename.substr(0,filename.find_last_of("."));
 				l_cmd += ".bin";
 				//system("read -rsp $'Moving BUFR...\n'");
 				system(l_cmd.c_str()); //Move BUFR file
-				l_cmd = "mv '" + outfolder + "/" + filename+ "' '" + outfolder + "/" + year + "/"+ idx + "/" + filename + "." + type_prefix[msgtype-1] + "'";
+				l_cmd = "mv '" + outfolder + "/" + filename+ "' '" + outfolder + "/" + year + "/" + idx + "/" + month + "/" + day + "/" + filename + "." + type_prefix[msgtype-1] + "'";
 				system(l_cmd.c_str()); //Move CBUFR result
 				result=true;
 			}
@@ -268,7 +278,20 @@ int MessagesProcessor::getIUKIUS(string index,string message)
 			//printf("Header OK...\n");
             return 2;
 		}
+
+		
+		for (size_t i=0;i!=KN04_PREFIXES;i++)
+		{
+			size_t test_kn04 = message.find(kn04_prefix[i]);
+			if (test_kn04 != std::string::npos)
+			{
+				printf("Header KN04 %s...\n",header.c_str());
+				return 3;
+			}
+		}
     }
+
+	
 	//printf("Header%s Index%s...\n",header.c_str(),index.c_str());
     return 0;
 }
@@ -319,68 +342,143 @@ std::vector<std::string> splitpath(
   return result;
 }
 
-void MessagesProcessor::saveIUKIUSMessages(string outfolder)
+void MessagesProcessor::processKN04Message(size_t i, int msgtype)
 {
-	//printf("Saving messages...\n");
 	std::set<char> delims{'\\','/'};
+
+	string fn = splitpath(msg_cfnm[i],delims).back();
+	string extt = fn.substr(0,fn.find_last_of("."));
+	string year = fn.substr(0,4); //Из имени бюллетеня берётся год, месяц, день
+	string month = fn.substr(4,2);
+	string day = fn.substr(6,2);
+	
+	
+	string idx = ""; // индекс берется из KN04
+
+	//Найдём TT**
+
+	size_t index_pos = msg_data[i].find("TT");
+	idx = msg_data[i].substr(index_pos+11,5);
+	string ltime = msg_data[i].substr(index_pos+7,2);
+		
+	string l_cmd = "echo 'index " + idx+"'";
+	system(l_cmd.c_str());
+
+	bool check_index = isdigit(idx[0])&&isdigit(idx[1])&&isdigit(idx[2])&&isdigit(idx[3])&&isdigit(idx[4]);
+
+	if (check_index)
+	{
+		string foldername = outfolder + "KN04/" + year + "/" + month + "/"+ day + "/";
+		l_cmd = "echo '" + foldername+"'";
+		system(l_cmd.c_str());
+		//l_cmd = "rm -rf '" + foldername + "/'";
+		//system(l_cmd.c_str()); //Make index and month folder
+		//system("read -rsp $'Press enter to continue...\n'");
+		l_cmd = "mkdir -p '" + foldername + "/'";
+		system(l_cmd.c_str()); //Make index and month folder
+
+		string fileName = foldername + "/" + year + month + day + ltime + ".rdisnd";
+		checkKN04Session(fileName);
+		l_cmd = "echo 'fname " + fileName+"'";
+		system(l_cmd.c_str());
+
+		ofstream write;
+		write.open(fileName.c_str(), ios::out | ios::binary | ios::app );
+		for (size_t j = 0; j != msg_data[i].length(); j++)
+		{
+			write.put(msg_data[i][j]);
+		}
+		write.close();
+	}
+}
+
+void MessagesProcessor::checkKN04Session(string filename)
+{
+	for (auto i=kn04session.begin();i!=kn04session.end();i++)
+    {
+		if (filename==*i)
+			return;
+	}
+	string l_cmd = "rm -rf " + filename + "";
+	system(l_cmd.c_str()); //Make index and month folder
+	kn04session.push_back(filename);
+}
+
+void MessagesProcessor::processBUFRMessage(size_t i, int msgtype)
+{
+	std::set<char> delims{'\\','/'};
+	string fn = splitpath(msg_cfnm[i],delims).back();
+	string extt = fn.substr(0,fn.find_last_of("."));
+	string year = fn.substr(0,4); //Из имени бюллетеня берётся год.
+	//string date = fn.substr(5,4);
+	if (!cbufrProcess)
+	{
+		string foldername = outfolder + "/" + year + "/"+ msg_index[i];
+		string l_cmd = "mkdir -p " + foldername;
+		system(l_cmd.c_str());
+		string fileName = foldername + "/" + extt + 
+		"_" + msg_index[i] + "_" + type_prefix[msgtype-1] + "_.bin";
+		ofstream write;
+		write.open(fileName.c_str(), ios::out | ios::binary);
+		for (size_t j = 0; j != msg_data[i].length(); j++)
+		{
+			write.put(msg_data[i][j]);
+		}
+		write.close();
+		printf("filename:%s\n",fileName.c_str());
+	}
+	else
+	{
+		string foldername = outfolder + "/" + year;
+		string l_cmd = "mkdir -p " + foldername;
+		system(l_cmd.c_str());
+		string fileName = outfolder + "/temp.bin"; //Temp file for cbufr
+		ofstream write;
+		write.open(fileName.c_str(), ios::out | ios::binary);
+		for (size_t j = 0; j != msg_data[i].length(); j++)
+		{
+			write.put(msg_data[i][j]);
+		}
+		write.close();
+		//system("read -rsp $'Wrote temp...\n'");
+		l_cmd = "wine " + outfolder + "/cbufr.exe export " + outfolder + "/temp.bin " + outfolder;
+		system(l_cmd.c_str());
+		//system("read -rsp $'Processed cbufr...\n'");
+		//получим файл *.prn
+		bool noresave = processPRNFile(year,outfolder,msgtype); //Если не найден то пересохраним
+
+		if (!noresave)
+		{
+			fileName = outfolder + "/" + extt + "_" + msg_index[i] + "_" + type_prefix[msgtype-1] + "_.bin";
+			write.open(fileName.c_str(), ios::out | ios::binary);
+			for (size_t j = 0; j != msg_data[i].length(); j++)
+			{
+				write.put(msg_data[i][j]);
+			}
+			write.close();
+			printf("CDENY:%s\n",fileName.c_str());
+		}
+	}
+}
+
+void MessagesProcessor::saveIUKIUSMessages(string _outfolder)
+{
+	outfolder = _outfolder;
+	printf("Saving messages...\n");
+	//system("read -rsp $'Press enter to continue...\n'");
 	for (size_t i = 0; i != msg_data.size(); i++)
     {
 		//printf("Checking index number %s\n",msg_index[i].c_str());
-	int msgtype = getIUKIUS(msg_index[i],msg_data[i]); //0 1 2
-        if (msgtype)//checkIUKIUS(msg_index[i],msg_data[i]))
-        {
-			string fn = splitpath(msg_cfnm[i],delims).back();
-			string extt = fn.substr(0,fn.find_last_of("."));
-			string year = fn.substr(0,4); //Из имени бюллетеня берётся год.
-			//string date = fn.substr(5,4);
-			if (!cbufrProcess)
-			{
-				string foldername = outfolder + "/" + year + "/"+ msg_index[i];
-				string l_cmd = "mkdir -p " + foldername;
-				system(l_cmd.c_str());
-				string fileName = foldername + "/" + extt + 
-				"_" + msg_index[i] + "_" + type_prefix[msgtype-1] + "_.bin";
-				ofstream write;
-				write.open(fileName.c_str(), ios::out | ios::binary);
-				for (size_t j = 0; j != msg_data[i].length(); j++)
-				{
-					write.put(msg_data[i][j]);
-				}
-				write.close();
-				printf("filename:%s\n",fileName.c_str());
-			}
-			else
-			{
-				string foldername = outfolder + "/" + year;
-				string l_cmd = "mkdir -p " + foldername;
-				system(l_cmd.c_str());
-				string fileName = outfolder + "/temp.bin"; //Temp file for cbufr
-				ofstream write;
-				write.open(fileName.c_str(), ios::out | ios::binary);
-				for (size_t j = 0; j != msg_data[i].length(); j++)
-				{
-					write.put(msg_data[i][j]);
-				}
-				write.close();
-				//system("read -rsp $'Wrote temp...\n'");
-				l_cmd = "wine " + outfolder + "/cbufr.exe export " + outfolder + "/temp.bin " + outfolder;
-				system(l_cmd.c_str());
-				//system("read -rsp $'Processed cbufr...\n'");
-				//получим файл *.prn
-				bool noresave = processPRNFile(year,outfolder,msgtype); //Если не найден то пересохраним
-
-				if (!noresave)
-				{
-					fileName = outfolder + "/" + extt + "_" + msg_index[i] + "_" + type_prefix[msgtype-1] + "_.bin";
-					write.open(fileName.c_str(), ios::out | ios::binary);
-					for (size_t j = 0; j != msg_data[i].length(); j++)
-					{
-						write.put(msg_data[i][j]);
-					}
-					write.close();
-					printf("CDENY:%s\n",fileName.c_str());
-				}
-			}
+		int msgtype = getIUKIUS(msg_index[i],msg_data[i]); //0 1 2
+		switch (msgtype)
+		{
+		case 1:
+		case 2:
+			processBUFRMessage(i,msgtype);
+		case 3:
+			processKN04Message(i,msgtype);
+		default:
+			break;
 		}
 		//printf("Check ok.\n");
     }
