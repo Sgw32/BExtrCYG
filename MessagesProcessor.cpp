@@ -210,7 +210,7 @@ void MessagesProcessor::findMSGFiles()
     if (overrideGrep!="")
     {
         grep = overrideGrep;
-        cout << "GREP overrided for:" grep << endl;
+        cout << "GREP overrided for:" << grep << endl;
     }
     
 	cout << "Scan is for " << grep <<endl;
