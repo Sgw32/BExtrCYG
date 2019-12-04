@@ -35,6 +35,7 @@ static inline void trim(std::string &s) {
 MessagesProcessor::MessagesProcessor()
 {
 	dayScan=false;
+    overrideGrep = "";
 }
 
 MessagesProcessor::~MessagesProcessor()
@@ -205,6 +206,13 @@ void MessagesProcessor::findMSGFiles()
 	char date[8];
 	sprintf(date,"%04d%02d%02d",now->tm_year+1900,now->tm_mon+1,now->tm_mday);
 	string grep(date);
+    
+    if (overrideGrep!="")
+    {
+        grep = overrideGrep;
+        cout << "GREP overrided for:" grep << endl;
+    }
+    
 	cout << "Scan is for " << grep <<endl;
 
 	for (vector<string>::iterator it = files.begin(); it != files.end(); it++)

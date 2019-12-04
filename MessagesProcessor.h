@@ -27,8 +27,10 @@ public:
 	void processKN04Message(size_t i, int msgtype);
 	void saveIUKIUSMessages(string outfolder);
 	void checkKN04Session(string filename); //We delete KN04 file every time we launch app
+    inline setOverrideGrep(string _grep){overrideGrep = _grep;}
 private:
 	string outfolder;
+    string overrideGrep;
 	bool dayScan;
 	bool cbufrProcess;
 	string ReadAllBytes(string filename);

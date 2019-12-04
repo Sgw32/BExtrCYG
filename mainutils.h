@@ -4,6 +4,7 @@
 #define MAINUTILS_H
 
 string inputFolder,outputFolder;
+string grepStr="";
 bool dayFiles = false;
 bool cbufrProcess = false;
 
@@ -28,6 +29,11 @@ void recognizeToken(string arg)
 	{
 		inputFolder = arg.substr(arg.find('I') + 2, arg.length() - 2);
 		cout<<"InputFolder:"<<inputFolder<<endl;
+	}
+    if (arg.find('G') != string::npos)
+	{
+		grepStr = arg.substr(arg.find('G') + 2, arg.length() - 2);
+		cout<<"GREP str:"<<grepStr<<endl;
 	}
 	if (arg.find('D') != string::npos)
 	{
