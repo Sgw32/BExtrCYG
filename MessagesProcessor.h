@@ -14,7 +14,7 @@ public:
 	~MessagesProcessor();
 	void processMessages(string folder);
 	void printIndexes();
-	bool processPRNFile(string year,string outfolder,int msgtype);
+	bool processPRNFile(string year,string _outfolder,int msgtype);
 	void setDayScan(bool enable)
 	{
 		dayScan=enable;
@@ -23,8 +23,12 @@ public:
 	{
 		cbufrProcess = cb;
 	}
+	void processBUFRMessage(size_t i, int msgtype);
+	void processKN04Message(size_t i, int msgtype);
 	void saveIUKIUSMessages(string outfolder);
+	void checkKN04Session(string filename); //We delete KN04 file every time we launch app
 private:
+	string outfolder;
 	bool dayScan;
 	bool cbufrProcess;
 	string ReadAllBytes(string filename);
@@ -34,13 +38,16 @@ private:
 	vector<string> files;
 	vector<string> messages;
 	vector<string> msg_data;
+	map<string,string> kn04_msg_data;
 	vector<string> msg_index;
 	vector<string> msg_cfnm;
+	vector<string> kn04session;
 	void findMSGFiles();
 	void addMessage(string msg,string index,string cfnm);
 	int getdir(string dir);
 	string mFolder;
 	string curFileName;
+	
 };
 
 #endif
