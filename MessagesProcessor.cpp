@@ -255,6 +255,19 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 				string month = filename.substr(undline+5,2);
 				string day = filename.substr(undline+7,2);
                 string ltime = filename.substr(undline+9,4);
+                
+                if ((ltime.substr(0,2)=="23")||
+                    (ltime.substr(0,2)=="22")||
+                    (ltime.substr(0,2)=="21")||
+                    (ltime.substr(0,2)=="00")||
+                    (ltime.substr(0,2)=="01")||)
+                {
+                    ltime = "0000";
+                }
+                else
+                {
+                    ltime = "1200";
+                }
 				//trim(idx);
 				string foldername = outfolder + "/" + year + "/" + month + "/" + day + "/" + ltime;
 				string l_cmd = "echo '" + foldername+"'";
