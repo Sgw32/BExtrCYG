@@ -236,6 +236,9 @@ void MessagesProcessor::findMSGFiles()
 
 bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 {
+    //PRN это результат работы cbufr, по этим данных даже исходя из названия файла многое можно получить. 
+    //PRN впрочем теперь удаляется
+    
 	bool result=false;
 	getdir(outfolder);
 	for (vector<string>::iterator it = files.begin(); it != files.end(); it++)
@@ -246,22 +249,25 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 			if (filename.substr(filename.find_last_of(".") + 1)=="PRN")
 			{
 				//Получен	
+                size_t undline = filename.find_last_of("_");
+                
 				string idx = filename.substr(0,5);
-				string month = filename.substr(10,2);
-				string day = filename.substr(12,2);
+				string month = filename.substr(undline+5,2);
+				string day = filename.substr(undline+7,2);
+                string ltime = filename.substr(undline+9,4);
 				//trim(idx);
-				string foldername = outfolder + "/" + year + "/"+ idx + "/" + month+ "/" + day;
+				string foldername = outfolder + "/" + year + "/" + month + "/" + day + "/" + ltime;
 				string l_cmd = "echo '" + foldername+"'";
 				system(l_cmd.c_str());
 				l_cmd = "mkdir -p '" + foldername + "'/";
 				system(l_cmd.c_str()); //Make index and month folder
-				l_cmd = "cp '" + outfolder + "/temp.bin' '" + outfolder + "/" + year + "/"+ idx + "/"+ month + "/" + day + "/'";
+				l_cmd = "cp '" + outfolder + "/temp.bin' '" + foldername + "/'";
 				l_cmd += filename.substr(0,filename.find_last_of("."));
 				l_cmd += ".bin";
 				//system("read -rsp $'Moving BUFR...\n'");
 				system(l_cmd.c_str()); //Move BUFR file
-				l_cmd = "mv '" + outfolder + "/" + filename+ "' '" + outfolder + "/" + year + "/" + idx + "/" + month + "/" + day + "/" + filename + "." + type_prefix[msgtype-1] + "'";
-				system(l_cmd.c_str()); //Move CBUFR result
+				l_cmd = "rm '" + outfolder + "/" + filename+ "'";
+				system(l_cmd.c_str()); //Delete CBUFR result
 				result=true;
 			}
 		}
@@ -455,7 +461,7 @@ void MessagesProcessor::processBUFRMessage(size_t i, int msgtype)
 		//получим файл *.prn
 		bool noresave = processPRNFile(year,outfolder,msgtype); //Если не найден то пересохраним
 
-		if (!noresave)
+		/*if (!noresave)
 		{
 			fileName = outfolder + "/" + extt + "_" + msg_index[i] + "_" + type_prefix[msgtype-1] + "_.bin";
 			write.open(fileName.c_str(), ios::out | ios::binary);
@@ -465,7 +471,7 @@ void MessagesProcessor::processBUFRMessage(size_t i, int msgtype)
 			}
 			write.close();
 			printf("CDENY:%s\n",fileName.c_str());
-		}
+		}*/
 	}
 }
 
