@@ -260,7 +260,7 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
                     (ltime.substr(0,2)=="22")||
                     (ltime.substr(0,2)=="21")||
                     (ltime.substr(0,2)=="00")||
-                    (ltime.substr(0,2)=="01")||)
+                    (ltime.substr(0,2)=="01"))
                 {
                     ltime = "0000";
                 }
