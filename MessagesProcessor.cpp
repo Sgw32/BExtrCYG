@@ -282,6 +282,7 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 				l_cmd = "rm '" + outfolder + "/" + filename+ "'";
 				system(l_cmd.c_str()); //Delete CBUFR result
 				result=true;
+				return true;
 			}
 		}
 	}
