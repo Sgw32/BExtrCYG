@@ -82,6 +82,7 @@ void MessagesProcessor::addMessage(string msg,string index,string cfnm)
 	msg_data.push_back(msg);
 	msg_index.push_back(index);
 	msg_cfnm.push_back(cfnm);
+	//cout<<"Adding message " <<index<< msg.length()<<endl;
 	//printf("Ok.\n");
 }
 
@@ -159,6 +160,7 @@ void MessagesProcessor::processMessages(std::string inputFolder)
                         idxBuilder = "";
                         messageBuilder = "";
 						//¬незапно оказалось, что idx - не индекс, а непон€тно что.
+			//cout<<"Adding message:"<<idx<<endl;
                         addMessage(message, idx,curFileName);
                         state = 0;
                         idx = "";
@@ -192,7 +194,13 @@ void MessagesProcessor::processMessages(std::string inputFolder)
         }
         if ((msgByteCount == 0))
         {
-            addMessage(message, idx,cfnm);
+	    message = messageBuilder;
+            idxBuilder = "";
+            messageBuilder = "";
+//            cout<<"Adding message:"<<idx<<endl;
+            addMessage(message, idx,curFileName);
+            state = 0;
+            idx = "";
         }
     }
 	//system("read -rsp $'Finished...\n'");
@@ -274,12 +282,14 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 				system(l_cmd.c_str());
 				l_cmd = "mkdir -p '" + foldername + "'/";
 				system(l_cmd.c_str()); //Make index and month folder
-				l_cmd = "cp '" + outfolder + "/temp.bin' '" + foldername + "/'";
+				l_cmd = "cp --force --backup=numbered --suffix=bin '" + outfolder + "/temp.bin' '" + foldername + "/'";
 				l_cmd += filename.substr(0,filename.find_last_of("."));
+				l_cmd += "_"+type_prefix[msgtype-1];
 				l_cmd += ".bin";
+				//cout<<"Index:"<<idx<<std::endl;
 				//system("read -rsp $'Moving BUFR...\n'");
 				system(l_cmd.c_str()); //Move BUFR file
-				l_cmd = "rm '" + outfolder + "/" + filename+ "'";
+				l_cmd = "rm '" + outfolder + "/*.PRN'";
 				system(l_cmd.c_str()); //Delete CBUFR result
 				result=true;
 				return true;
@@ -296,6 +306,7 @@ int MessagesProcessor::getIUKIUS(string index,string message)
     if (message.length() > index_pos + 2 + 5 + 1+3)
     {
         header = message.substr(index_pos + 2 + 5 + 1, 3);
+	cout << "Header:" <<header<<endl;
         if ((header == "IUK"))
 		{
 			//printf("Header OK...\n");
@@ -317,6 +328,7 @@ int MessagesProcessor::getIUKIUS(string index,string message)
 				return 3;
 			}
 		}
+		cout<<"Unknown header:"<<header<<endl;
     }
 
 	
@@ -497,7 +509,7 @@ void MessagesProcessor::saveIUKIUSMessages(string _outfolder)
 	//system("read -rsp $'Press enter to continue...\n'");
 	for (size_t i = 0; i != msg_data.size(); i++)
     {
-		//printf("Checking index number %s\n",msg_index[i].c_str());
+		printf("Checking index number %s\n",msg_index[i].c_str());
 		int msgtype = getIUKIUS(msg_index[i],msg_data[i]); //0 1 2
 		switch (msgtype)
 		{
