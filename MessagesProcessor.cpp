@@ -299,7 +299,7 @@ void MessagesProcessor::registerResultInLog(string idx,string path)
 	}
 	//trim(idx);
 	string foldername = outfolder + "/" + getNowYear() + "/" + getNowMonth() + "/" + getNowDay() + "/" + ltime;
-	l_cmd = "mkdir -p '" + foldername + "'/";
+	string l_cmd = "mkdir -p '" + foldername + "'/";
 	foldername+= + "/result_" + getNowHour() + ".log";
 	system(l_cmd.c_str()); 
 	ofstream write;
