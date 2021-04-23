@@ -206,6 +206,46 @@ void MessagesProcessor::processMessages(std::string inputFolder)
 	//system("read -rsp $'Finished...\n'");
 }
 
+string MessagesProcessor::getNowYear()
+{
+	time_t t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+	char date[8];
+	sprintf(date,"%04d",now->tm_year+1900);
+	string grep(date);
+	return grep;
+}
+
+string MessagesProcessor::getNowMonth()
+{
+	time_t t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+	char date[8];
+	sprintf(date,"%02d",now->tm_mon+1);
+	string grep(date);
+	return grep;
+}
+
+string MessagesProcessor::getNowDay()
+{
+	time_t t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+	char date[8];
+	sprintf(date,"%02d",now->tm_mday);
+	string grep(date);
+	return grep;
+}
+
+string MessagesProcessor::getNowHour()
+{
+	time_t t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+	char date[8];
+	sprintf(date,"%02d",now->tm_hour);
+	string grep(date);
+	return grep;
+}
+
 void MessagesProcessor::findMSGFiles()
 {
 	time_t t = time(0);   // get time now
@@ -240,6 +280,32 @@ void MessagesProcessor::findMSGFiles()
 		}
 	}
 	cout << "SCAN OK!" << endl;
+}
+
+void MessagesProcessor::registerResultInLog(string idx,string path)
+{
+	string ltime = getNowHour();
+	if ((ltime.substr(0,2)=="23")||
+		(ltime.substr(0,2)=="22")||
+		(ltime.substr(0,2)=="21")||
+		(ltime.substr(0,2)=="00")||
+		(ltime.substr(0,2)=="01"))
+	{
+		ltime = "0000";
+	}
+	else
+	{
+		ltime = "1200";
+	}
+	//trim(idx);
+	string foldername = outfolder + "/" + year + "/" + month + "/" + day + "/" + ltime;
+	l_cmd = "mkdir -p '" + foldername + "'/";
+	foldername+= + "/result_" + getNowHour() + ".log";
+	system(l_cmd.c_str()); 
+	ofstream write;
+	write.open(foldername.c_str(), ios::out | ios::app );
+	write << idx << ";" << path << ";"<< ltime << ";" << getNowHour() << endl;
+	write.close();
 }
 
 bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
@@ -289,6 +355,7 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 				//cout<<"Index:"<<idx<<std::endl;
 				//system("read -rsp $'Moving BUFR...\n'");
 				system(l_cmd.c_str()); //Move BUFR file
+				registerResultInLog(idx,foldername+"/"+filename);
 				l_cmd = "rm '" + outfolder + "/*.PRN'";
 				system(l_cmd.c_str()); //Delete CBUFR result
 				result=true;

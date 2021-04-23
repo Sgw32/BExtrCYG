@@ -28,6 +28,11 @@ public:
 	void saveIUKIUSMessages(string outfolder);
 	void checkKN04Session(string filename); //We delete KN04 file every time we launch app
     inline void setOverrideGrep(string _grep){overrideGrep = _grep;}
+	string getNowYear();
+	string getNowMonth();
+	string getNowDay();
+	string getNowHour();
+	void registerResultInLog();
 private:
 	string outfolder;
     string overrideGrep;
