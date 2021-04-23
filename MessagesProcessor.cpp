@@ -251,7 +251,7 @@ void MessagesProcessor::findMSGFiles()
 	time_t t = time(0);   // get time now
     struct tm * now = localtime( & t );
 
-	char date[8];
+	char date[9];
 	sprintf(date,"%04d%02d%02d",now->tm_year+1900,now->tm_mon+1,now->tm_mday);
 	string grep(date);
     
@@ -355,7 +355,8 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 				//cout<<"Index:"<<idx<<std::endl;
 				//system("read -rsp $'Moving BUFR...\n'");
 				system(l_cmd.c_str()); //Move BUFR file
-				registerResultInLog(idx,foldername+"/"+filename);
+				string resFileName = foldername + filename.substr(0,filename.find_last_of(".")) + "_"+type_prefix[msgtype-1] + ".bin";
+				registerResultInLog(idx,resFileName);
 				l_cmd = "rm '" + outfolder + "/*.PRN'";
 				system(l_cmd.c_str()); //Delete CBUFR result
 				result=true;
@@ -552,7 +553,7 @@ void MessagesProcessor::processBUFRMessage(size_t i, int msgtype)
 		system(l_cmd.c_str());
 		//system("read -rsp $'Processed cbufr...\n'");
 		//получим файл *.prn
-		bool noresave = processPRNFile(year,outfolder,msgtype); //Если не найден то пересохраним
+		//bool noresave = processPRNFile(year,outfolder,msgtype); //Если не найден то пересохраним
 		l_cmd = "rm -rf " + outfolder + "/*.PRN";
 		system(l_cmd.c_str());
 		/*if (!noresave)
