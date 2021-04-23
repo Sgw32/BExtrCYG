@@ -298,7 +298,7 @@ void MessagesProcessor::registerResultInLog(string idx,string path)
 		ltime = "1200";
 	}
 	//trim(idx);
-	string foldername = outfolder + "/" + year + "/" + month + "/" + day + "/" + ltime;
+	string foldername = outfolder + "/" + getNowYear() + "/" + getNowMonth() + "/" + getNowDay() + "/" + ltime;
 	l_cmd = "mkdir -p '" + foldername + "'/";
 	foldername+= + "/result_" + getNowHour() + ".log";
 	system(l_cmd.c_str()); 
