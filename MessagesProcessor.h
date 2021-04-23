@@ -32,7 +32,7 @@ public:
 	string getNowMonth();
 	string getNowDay();
 	string getNowHour();
-	void registerResultInLog();
+	void registerResultInLog(string idx,string path);
 private:
 	string outfolder;
     string overrideGrep;
