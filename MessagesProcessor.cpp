@@ -355,7 +355,7 @@ bool MessagesProcessor::processPRNFile(string year,string outfolder,int msgtype)
 				//cout<<"Index:"<<idx<<std::endl;
 				//system("read -rsp $'Moving BUFR...\n'");
 				system(l_cmd.c_str()); //Move BUFR file
-				string resFileName = foldername + filename.substr(0,filename.find_last_of(".")) + "_"+type_prefix[msgtype-1] + ".bin";
+				string resFileName = foldername + "/" + filename.substr(0,filename.find_last_of(".")) + "_"+type_prefix[msgtype-1] + ".bin";
 				registerResultInLog(idx,resFileName);
 				l_cmd = "rm '" + outfolder + "/*.PRN'";
 				system(l_cmd.c_str()); //Delete CBUFR result
