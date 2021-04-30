@@ -553,7 +553,7 @@ void MessagesProcessor::processBUFRMessage(size_t i, int msgtype)
 		system(l_cmd.c_str());
 		//system("read -rsp $'Processed cbufr...\n'");
 		//получим файл *.prn
-		//bool noresave = processPRNFile(year,outfolder,msgtype); //Если не найден то пересохраним
+		bool noresave = processPRNFile(year,outfolder,msgtype); //Если не найден то пересохраним
 		l_cmd = "rm -rf " + outfolder + "/*.PRN";
 		system(l_cmd.c_str());
 		/*if (!noresave)
