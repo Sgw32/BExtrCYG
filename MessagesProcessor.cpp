@@ -581,9 +581,9 @@ void MessagesProcessor::saveIUKIUSMessages(string _outfolder)
 		int msgtype = getIUKIUS(msg_index[i],msg_data[i]); //0 1 2
 		switch (msgtype)
 		{
-		case 1:
-		case 2:
-			processBUFRMessage(i,msgtype);
+		//case 1:
+		//case 2:
+		//processBUFRMessage(i,msgtype);
 		case 3:
 			processKN04Message(i,msgtype);
 		default:
