@@ -498,6 +498,41 @@ void MessagesProcessor::processKN04Message(size_t i, int msgtype)
 		}
 		write.close();
 	}
+	else
+	{
+		index_pos = msg_data[i].find("TT");
+		idx = msg_data[i].substr(index_pos+12,5);
+		ltime = msg_data[i].substr(index_pos+8,2);
+			
+		l_cmd = "echo 'index " + idx+"'";
+		system(l_cmd.c_str());
+
+		check_index = isdigit(idx[0])&&isdigit(idx[1])&&isdigit(idx[2])&&isdigit(idx[3])&&isdigit(idx[4]);
+		if (check_index)
+		{
+			string foldername = outfolder + "KN04/" + year + "/" + month + "/"+ day + "/";
+			l_cmd = "echo '" + foldername+"'";
+			system(l_cmd.c_str());
+			//l_cmd = "rm -rf '" + foldername + "/'";
+			//system(l_cmd.c_str()); //Make index and month folder
+			//system("read -rsp $'Press enter to continue...\n'");
+			l_cmd = "mkdir -p '" + foldername + "/'";
+			system(l_cmd.c_str()); //Make index and month folder
+
+			string fileName = foldername + "/" + year + month + day + ltime + ".rdisnd";
+			checkKN04Session(fileName);
+			l_cmd = "echo 'fname " + fileName+"'";
+			system(l_cmd.c_str());
+
+			ofstream write;
+			write.open(fileName.c_str(), ios::out | ios::binary | ios::app );
+			for (size_t j = 0; j != msg_data[i].length(); j++)
+			{
+				write.put(msg_data[i][j]);
+			}
+			write.close();
+		}
+	}
 }
 
 void MessagesProcessor::checkKN04Session(string filename)
